@@ -4,7 +4,7 @@
 # Script name:         main.py
 # Description:         Code for reading VCF files
 # Invocation example:  Reading VCF file and filtering contacts based on tags:
-#                           python3 src/main.py -vcf_file_path "/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/ReadVCF/tests/ContactsTest.vcf" -tag_list 1m02 2m02 3m02 -logic_op "|"
+#                           python3 src/main.py -vcf_file_path "/tests/ContactsTest.vcf" -tag_list 1m02 2m02 3m02 -logic_op "|"
 #                      Accessing useful help messages:
 #                           python3 src/main.py -h
 # Author:              Anthony Guinchard
@@ -112,7 +112,7 @@ def parse_arguments(latest_busy_contacts_vcf):
             '-vcf_file_path',
             metavar='/path/to/your/vcf/file/vcf_file.vcf',
             type=str,
-            default='/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/ReadVCF/tests/ContactsTest.vcf',
+            default='/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/VCFParser/tests/ContactsTest.vcf',
             help='VCF file path to read content from.'
         )
         parser.add_argument(
