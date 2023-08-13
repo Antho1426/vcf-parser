@@ -1,0 +1,6 @@
+# Folders
+infos/*
+src/out/*
+
+# Files
+tests/ContactsTest.vcf

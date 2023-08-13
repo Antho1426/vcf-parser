@@ -1,0 +1,57 @@
+{
+    "ORG":
+        {
+            "value": "Organization",
+            "count": 0
+        },
+    "TITLE":
+        {
+            "value": "Profession",
+            "count": 0
+        },
+    "EMAIL":
+        {
+            "value": "Email",
+            "count": 0
+        },
+    "TEL":
+        {
+            "value": "Phone",
+            "count": 0
+        },
+    "ADR":
+        {
+            "value": "Address",
+            "count": 0
+        },
+    "BDAY":
+        {
+            "value": "Birthday",
+            "count": 0
+        },
+    "GENDER":
+        {
+            "value": "Gender",
+            "count": 0
+        },
+    "NICKNAME":
+        {
+            "value": "Nickname",
+            "count": 0
+        },
+    "CATEGORIES":
+        {
+            "value": "Tags",
+            "count": 0
+        },
+    "NOTE":
+        {
+            "value": "Note",
+            "count": 0
+        },
+    "PHOTO":
+        {
+            "value": "Picture",
+            "count": 0
+        }
+}

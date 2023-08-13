@@ -1,0 +1,17 @@
+{
+    "nationality":
+        {
+            "value": "Nationality",
+            "count": 0
+        },
+    "IBAN":
+        {
+            "value": "IBAN",
+            "count": 0
+        },
+    "No. AVS":
+        {
+            "value": "No. AVS",
+            "count": 0
+        }
+}

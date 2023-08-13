@@ -1,0 +1,217 @@
+{
+    "FACEBOOK":
+        {
+            "value": "Facebook",
+            "count": 0
+        },
+    "TWITTER":
+        {
+            "value": "Twitter",
+            "count": 0
+        },
+    "MASTODON":
+        {
+            "value": "Mastodon",
+            "count": 0
+        },
+    "INSTAGRAM":
+        {
+            "value": "Instagram",
+            "count": 0
+        },
+    "LINKEDIN":
+        {
+            "value": "LinkedIn",
+            "count": 0
+        },
+    "GOOGLE+":
+        {
+            "value": "Google+",
+            "count": 0
+        },
+    "FLICKR":
+        {
+            "value": "Flickr",
+            "count": 0
+        },
+    "YOUTUBE":
+        {
+            "value": "YouTube",
+            "count": 0
+        },
+    "YELP":
+        {
+            "value": "Yelp",
+            "count": 0
+        },
+    "GAME CENTER":
+        {
+            "value": "Game Center",
+            "count": 0
+        },
+    "SINA WEIBO":
+        {
+            "value": "Sina Weibo",
+            "count": 0
+        },
+    "Tencent Weibo":
+        {
+            "value": "Tencent Weibo",
+            "count": 0
+        },
+    "XING":
+        {
+            "value": "Xing",
+            "count": 0
+        },
+    "MYSPACE":
+        {
+            "value": "Myspace",
+            "count": 0
+        },
+    "ALLOCINÉ":
+        {
+            "value": "AlloCiné",
+            "count": 0
+        },
+    "BEHANCE":
+        {
+            "value": "Behance",
+            "count": 0
+        },
+    "GITHUB":
+        {
+            "value": "GitHub",
+            "count": 0
+        },
+    "GOOGLE CHAT":
+        {
+            "value": "Google Chat",
+            "count": 0
+        },
+    "GOOGLE DRIVE":
+        {
+            "value": "Google Drive",
+            "count": 0
+        },
+    "GOOGLE SCHOLAR":
+        {
+            "value": "Google Scholar",
+            "count": 0
+        },
+    "IEEE XPLORE":
+        {
+            "value": "IEEE Xplore",
+            "count": 0
+        },
+    "IMDB":
+        {
+            "value": "IMDb",
+            "count": 0
+        },
+    "JAPAN TRAVEL":
+        {
+            "value": "Japan Travel",
+            "count": 0
+        },
+    "LINE":
+        {
+            "value": "LINE",
+            "count": 0
+        },
+    "LINKTREE":
+        {
+            "value": "Linktree",
+            "count": 0
+        },
+    "MEDIUM":
+        {
+            "value": "Medium",
+            "count": 0
+        },
+    "MEETUP":
+        {
+            "value": "Meetup",
+            "count": 0
+        },
+    "MIXCLOUD":
+        {
+            "value": "Mixcloud",
+            "count": 0
+        },
+    "PINTEREST":
+        {
+            "value": "Pinterest",
+            "count": 0
+        },
+    "RESEARCHGATE":
+        {
+            "value": "ResearchGate",
+            "count": 0
+        },
+    "SKYPE":
+        {
+            "value": "Skype",
+            "count": 0
+        },
+    "SNAPCHAT":
+        {
+            "value": "Snapchat",
+            "count": 0
+        },
+    "SOUNDCLOUD":
+        {
+            "value": "SoundCloud",
+            "count": 0
+        },
+    "SPOTIFY":
+        {
+            "value": "Spotify",
+            "count": 0
+        },
+    "STRAVA":
+        {
+            "value": "Strava",
+            "count": 0
+        },
+    "TELEGRAM":
+        {
+            "value": "Telegram",
+            "count": 0
+        },
+    "TIKTOK":
+        {
+            "value": "TikTok",
+            "count": 0
+        },
+    "TRIPADVISOR":
+        {
+            "value": "Tripadvisor",
+            "count": 0
+        },
+    "TUMBLR":
+        {
+            "value": "Tumblr",
+            "count": 0
+        },
+    "VIMEO":
+        {
+            "value": "Vimeo",
+            "count": 0
+        },
+    "WIKIPEDIA":
+        {
+            "value": "Wikipedia",
+            "count": 0
+        },
+    "YOUTUBE CHANNEL":
+        {
+            "value": "YouTube Channel",
+            "count": 0
+        },
+    "WEBSITE":
+        {
+            "value": "website",
+            "count": 0
+        }
+}
