@@ -3,4 +3,6 @@ infos/*
 src/out/*
 
 # Files
+src/tempCodeRunnerFile.py
 tests/ContactsTest.vcf
+TODO.md

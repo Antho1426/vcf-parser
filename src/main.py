@@ -4,7 +4,7 @@
 # Script name:         main.py
 # Description:         Code for reading VCF files
 # Invocation example:  Reading VCF file and filtering contacts based on tags:
-#                           python3 src/main.py -vcf_file_path "/tests/ContactsTest.vcf" -tag_list 1m02 2m02 3m02 -logic_op "|"
+#                           python3 src/main.py -vcf_file_path "/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/VCFParser/tests/ContactsTest.vcf" -tag_list 1m02 2m02 3m02 -logic_op "|"
 #                      Accessing useful help messages:
 #                           python3 src/main.py -h
 # Author:              Anthony Guinchard
@@ -25,9 +25,8 @@ import math as m
 import os
 import re
 import sys
-from typing import TypeVar, Union
+from datetime import datetime
 
-import cv2
 import openpyxl
 import pandas as pd
 from openpyxl.drawing.image import \
@@ -46,16 +45,6 @@ print(f"script_path: {script_path}")    # printing "script_path"
 # setting the current working directory based on the path leading to the
 # currently executing script
 os.chdir(script_path)
-
-
-# Type definitions
-
-# NumpyNdarrayType = TypeVar('NumpyNdarrayType')
-# VocabEncoderType = TypeVar('VocabEncoderType')
-# VQAModelType = TypeVar('VQAModelType')
-# PyTorchTensorType = TypeVar('PyTorchTensorType')
-# StreamlitDeltaGenerator = TypeVar('StreamlitDeltaGenerator')
-# StreamlitSessionState = TypeVar('StreamlitSessionState')
 
 
 # Initializations
@@ -80,10 +69,27 @@ conversion_table = {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E',
 
 # Functions
 
+def get_timestamp():
+    """
+    Get current timestamp.
+    """
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d_%H-%M-%S")
+
+
+def print_and_log(message):
+    """
+    Print and log debug message
+    """
+    print(f'{get_timestamp()}: {message}')
+    logging.info(message)
+
+
 def get_latest_busy_contacts_vcf():
     """
     List all ".babu" files in BUSY_CONTACTS_BACKUP_PATH.
     """
+    print_and_log('Getting latest VCF backup file of BusyContacts app.')
     babu_path_list = glob.glob(BUSY_CONTACTS_BACKUP_PATH + "*.babu")
     babu_path_list_sorted = sorted(babu_path_list)
     babu_path_latest = babu_path_list_sorted[-1]+'/'
@@ -103,11 +109,14 @@ def parse_arguments(latest_busy_contacts_vcf):
     Read arguments from a command line.
     """
 
-    parser = argparse.ArgumentParser(description="This program intends to read VCF file\
+    print_and_log('Parsing arguments.')
+
+    parser = argparse.ArgumentParser(description="This program intends to parse VCF file\
     content.\
     Enjoy!")
 
     if DEBUG_MODE:
+
         parser.add_argument(
             '-vcf_file_path',
             metavar='/path/to/your/vcf/file/vcf_file.vcf',
@@ -117,11 +126,11 @@ def parse_arguments(latest_busy_contacts_vcf):
         )
         parser.add_argument(
             '-tag_list',
-            metavar='["my_tag_1", "my_tag_2", "my_tag_3"]',
+            metavar='my_tag_1 my_tag_2 my_tag_3',
             nargs='+',
             type=str,
-            default=['1m02', '2m02', '3m02'],
-            help='List of tags identifying contacts of interest. If left empty, this means that all contacts have to be read from VCF file independently of their tags.'
+            default=['EPFL'],  # ['1m02', '2m02', '3m02']
+            help='List of tags identifying contacts of interest. If left empty, this means that all contacts have to be extracted from VCF file independently of their tags.'
         )
         parser.add_argument(
             '-logic_op',
@@ -130,7 +139,9 @@ def parse_arguments(latest_busy_contacts_vcf):
             default='|',
             help='Logical operator symbol being either "&" or "|" indicating whether the user wants to extract contacts meeting respectively all tags or only at least one from the list of tags.'
         )
+
     else:
+
         parser.add_argument(
             '-vcf_file_path',
             metavar='/path/to/your/vcf/file/vcf_file.vcf',
@@ -140,11 +151,11 @@ def parse_arguments(latest_busy_contacts_vcf):
         )
         parser.add_argument(
             '-tag_list',
-            metavar='["my_tag_1", "my_tag_2", "my_tag_3"]',
+            metavar='my_tag_1 my_tag_2 my_tag_3',
             nargs='+',
             type=str,
             default=[],  # empty list of tags
-            help='List of tags identifying contacts of interest. If left empty, this means that all contacts have to be read from VCF file independently of their tags.'
+            help='List of tags identifying contacts of interest. If left empty, this means that all contacts have to be extracted from VCF file independently of their tags.'
         )
         parser.add_argument(
             '-logic_op',
@@ -160,8 +171,11 @@ def parse_arguments(latest_busy_contacts_vcf):
 
 
 def initialize_logging():
+    """
+    Initialize log file.
+    """
     logging.basicConfig(
-        filename='./app.log',
+        filename=f'{script_path}/app.log',
         filemode='w',
         encoding='utf-8',
         format='%(asctime)s: %(message)s',
@@ -171,20 +185,27 @@ def initialize_logging():
 
 
 def reset_field_counts(field_dict_list):
-    """Reset field count."""
+    """
+    Reset field count.
+    """
     for field_dict in field_dict_list:
         for key in list(field_dict.keys()):
             field_dict[key]['count'] = 0
 
 
-def modular_function():
-    """Perform nothing."""
-    pass
+def add_contact(contacts_dict, contact_dict, contact_id):
+    """
+    Add contact dictionary in nested global contacts dictionary.
+    """
+    contacts_dict[contact_id] = contact_dict
+    contact_id = contact_id+1
+    listening_to_data = False
+    return contacts_dict, contact_dict, contact_id, listening_to_data
 
 
 def decimalToExcelBase26(decimal):
     """
-    Function which converts decimal value to "Excel base 26" value.
+    Convert decimal value to "Excel base 26" value.
     """
     excel_base_26 = ''
     while (decimal > 0):
@@ -241,6 +262,8 @@ def main(args):
     value_previous = 'Name'
     last_symbol = ''
 
+    print_and_log('Reading VCF file...')
+
     with open(args.vcf_file_path, mode='r') as vcf_:
         for line in tqdm(vcf_):
 
@@ -253,13 +276,41 @@ def main(args):
                 reset_field_counts(field_dict_list)
 
             if line.startswith(END_SYMBOL) and listening_to_data:
-                # If we want to filter contacts based on tags and if the current contact has no "Tags" field, then we skip this contact...
-                if (len(args.tag_list) > 0) and 'Tags' not in contact_dict:
-                    continue
+                # Checking list of tags at the very end of current contact
+                if (len(args.tag_list) > 0):
+                    # If we want to filter contacts based on tags and if the
+                    # current contact has no "Tags" field, then we skip this contact...
+                    if 'Tags' not in contact_dict:
+                        listening_to_data = False
+                        continue
+                    else:
+                        # Checking tags (for filtering contacts, i.e. skipping some
+                        # contacts if tags are not met) ONLY when list of tags has
+                        # been completely gathered for current contact
+                        # Note: If no tag is listed in "args.tag_list", then no
+                        # contact at all gets filtered out and an Excel spreadsheet
+                        # with all contacts stored in VCF file is generated.
+                        tag_value = standard_field_dict['CATEGORIES']['value']
+                        contact_tags = contact_dict[tag_value].split(',')
+                        if args.logic_op == '&':
+                            if not all(tag in contact_tags for tag in args.tag_list):
+                                listening_to_data = False
+                                continue
+                            else:
+                                contacts_dict, contact_dict, contact_id, listening_to_data = add_contact(
+                                    contacts_dict, contact_dict, contact_id)
+                                continue
+                        if args.logic_op == '|':
+                            if not any(tag in contact_tags for tag in args.tag_list):
+                                listening_to_data = False
+                                continue
+                            else:
+                                contacts_dict, contact_dict, contact_id, listening_to_data = add_contact(
+                                    contacts_dict, contact_dict, contact_id)
+                                continue
                 else:
-                    contacts_dict[contact_id] = contact_dict
-                    contact_id = contact_id+1
-                    listening_to_data = False
+                    contacts_dict, contact_dict, contact_id, listening_to_data = add_contact(
+                        contacts_dict, contact_dict, contact_id)
                     continue
 
             if listening_to_data:
@@ -280,23 +331,6 @@ def main(args):
                     if len(middle_name_2) > 0:
                         contact_dict['Middle Name 2'] = middle_name_2
 
-                # Checking tags (for filtering contacts, i.e. skipping some
-                # contacts if tags are not met) when list of tags has
-                # been completely gathered for current contact
-                # Note: If no tag is listed in "args.tag_list", then no
-                # contact gets filtered out.
-                if key_previous == 'CATEGORIES' and (len(args.tag_list) > 0):
-                    tag_value = standard_field_dict['CATEGORIES']['value']
-                    contact_tags = contact_dict[tag_value]
-                    if args.logic_op == '&':
-                        if not all(tag in contact_tags for tag in args.tag_list):
-                            listening_to_data = False
-                            continue
-                    if args.logic_op == '|':
-                        if not any(tag in contact_tags for tag in args.tag_list):
-                            listening_to_data = False
-                            continue
-
                 # Built-in fields
                 if line.startswith(tuple(standard_field_list)):
 
@@ -316,7 +350,7 @@ def main(args):
                         data = line.split(':')[-1]
                     if data.startswith(';;'):  # this is sometimes the case for ADR
                         data = data[2:]
-                    # Replacing unwanted characters
+                    # Replacing unwanted characters in case field is not a "Note"
                     if key != 'NOTE' and line[0] != ' ':
                         data = data.replace('\n', '').replace(
                             '\\', '').replace(';;', ', ').replace(';', ', ')
@@ -348,7 +382,6 @@ def main(args):
 
                 # Custom fields
                 if 'X-CUSTOM' in line and any(custom_field in line for custom_field in custom_field_list):
-                    # TODO: maybe refactor below since also used for regular fields
                     for custom_field in custom_field_list:
                         if line.find(custom_field) >= 0:
                             key = custom_field
@@ -386,25 +419,11 @@ def main(args):
 
                 # Unfinished lines (this seems to be only possible for Address,
                 # Note, Picture, Tags and social profile fields)
-                if (key_previous == 'ADR' or key_previous == 'NOTE' or key_previous == 'PHOTO' or key_previous == 'CATEGORIES' or key_previous in social_profile_field_list) and line[0] == ' ':
+                if (key_previous == 'ADR' or key_previous == 'NOTE' or
+                    key_previous == 'PHOTO' or key_previous == 'CATEGORIES' or
+                        key_previous in social_profile_field_list) and line[0] == ' ':
                     if key_previous == 'NOTE':
                         # Getting rid of first space at beginning of line and replacing:
-                        # - "\\n" with "\n"
-                        # - "\\\n" with "\n"
-                        # - "\," with ","
-                        # - "\u200b" with ""
-                        # --- TODO: delete below!
-                        # line = line[1:].replace('\\n', '\n').replace('\\\n', '\n').replace(
-                        #     '\,', ',').replace('\u200b', '').replace('\xa0', '')
-                        # first_symbol = line[0]
-                        # # Handling case where note line finishes with "\" and begins on next line with "n" symbol
-                        # if (last_symbol == '\n') and (first_symbol == 'n'):
-                        #     line = line[1:]
-                        # last_symbol = line[-1]
-                        # ---
-                        # New logic
-                        # ---
-                        # Getting rid of empty string starting line
                         line = line[1:]
                         # Removing eventual ending line break finishing line of length up to 75
                         if (len(line) - 75) <= 0 and line[-1:] == '\n':
@@ -421,21 +440,41 @@ def main(args):
                         # line = line.replace('\\\n', '\n')
                         line = line.replace('\\n', '\n')
                         line = line.replace('\\', '')
-                        # ---
                     if key_previous == 'ADR' or key_previous == 'PHOTO' or key_previous == 'CATEGORIES' or key_previous in social_profile_field_list:
-                        # Getting rid of first space at beginning of line and replacing:
-                        # - "\\n" with ""
+                        # Getting rid of first space at beginning of line and replacing "\n" with ""
                         line = line[1:].replace('\n', '')
                     # Appending unfinished line to previous line(s)
                     contact_dict[value_previous] = contact_dict[value_previous]+line
 
+                # Checking tags (for filtering contacts, i.e. skipping some
+                # contacts if tags are not met) ONLY when list of tags has
+                # been completely gathered for current contact
+                # Note: If no tag is listed in "args.tag_list", then no
+                # contact at all gets filtered out and an Excel spreadsheet
+                # with all contacts stored in VCF file is generated.
+                # if not listening_to_tags and (len(args.tag_list) > 0):
+                #     tag_value = standard_field_dict['CATEGORIES']['value']
+                #     contact_tags = contact_dict[tag_value].split(',')
+                #     if args.logic_op == '&':
+                #         if not all(tag in contact_tags for tag in args.tag_list):
+                #             listening_to_data = False
+                #             continue
+                #     if args.logic_op == '|':
+                #         if not any(tag in contact_tags for tag in args.tag_list):
+                #             listening_to_data = False
+                #             continue
+
     # Converting contacts_dict dictionary to contacts_df DataFrame
+    print_and_log('Converting dictionary to DataFrame.')
     contacts_df = pd.DataFrame.from_dict(contacts_dict, orient="index")
 
     # Reordering DataFrame rows in chronological index order
+    print_and_log('Reordering DataFrame\'s rows.')
     contacts_df.sort_index(axis=0, inplace=True)
 
     # Reordering DataFrame columns
+    print_and_log('Reordering DataFrame\'s columns.')
+
     column_list = contacts_df.columns.tolist()
     ordered_column_list = []
 
@@ -480,17 +519,21 @@ def main(args):
     ordered_column_list = ordered_column_list + last_columns_diff_no_dupl
     contacts_df = contacts_df[ordered_column_list]
 
-    # Optionally writing contacts_dict to JSON file
-    with open(OUTPUT_FILE_PATH+JSON_FILE_NAME, 'w', encoding='utf8') as outfile:
-        json.dump(contacts_dict, outfile, ensure_ascii=False)
+    # Saving transposed DataFrame to JSON file
+    print_and_log('Saving DataFrame to pretty-printed JSON file.')
+    with open(OUTPUT_FILE_PATH+JSON_FILE_NAME, 'w', encoding='utf-8') as file:
+        contacts_df.T.to_json(file, force_ascii=False, indent=2)
 
     # Creating a Pandas Excel writer using XlsxWriter as the engine
     writer = pd.ExcelWriter(
         OUTPUT_FILE_PATH+EXCEL_WORKBOOK_NAME, engine="xlsxwriter")
+
     # Saving contacts_df to contacts.xlsx
+    print_and_log('Saving DataFrame to Excel spreadsheet.')
     contacts_df.to_excel(writer, sheet_name=EXCEL_WORKSHEET_NAME, index=True)
 
-    # Setting up Excel worksheet table
+    # Setting up Excel worksheet pivot table
+    print_and_log('Setting up Excel worksheet pivot table.')
 
     # Getting XlsxWriter workbook and worksheet objects
     workbook = writer.book
@@ -511,6 +554,7 @@ def main(args):
     writer.close()
 
     # Handling pictures
+    print_and_log('Handling contact pictures.')
 
     photo_value = standard_field_dict['PHOTO']['value']
     if photo_value in contacts_df:
@@ -549,45 +593,6 @@ def main(args):
         for pic_path in glob.glob(f'{PICTURE_FILE_PATH}/*.png'):
             os.remove(pic_path)
 
-    print('Finish!!!!!!!!!!!!!!!!!!!')
-
-# TODO: stuffs to fix:
-# - [x] Reorder columns based on name (maybe: first name, last name, organization, profession, birthday, gender, nationality, address, tags, note and picture but then alphabetical order?)
-# - [x] Create 1 column for the first name and 1 for the family name. Cas intéressant with middle name: "Théophile Nicolas Joseph" or better "Eurico Joao Alfeirao" (first, middle, last appearing as "N:Alfeirao;Eurico;Joao;;" -> N:Last;First;Middle;;).
-#    - Rule: Right after N: is Last name, then first name or middle name if any and then first name.
-# - [x] Check what is wrong with custom fields (No. AVS shouldn't be Nationality_3)
-# - [x] Remove possible ", " at the beginning of "Address" field
-# - [x] Look at field "Notes" it should appear in Excel as it appears in BC (with correct line breaks, etc.)
-# - [x] Take care of incomplete addresses appearing on several lines (example for Nancy Guinchard or Pedro Barroso with "Rue du Milieu 25, Yverdon-les-Bains, Vaud, 1400, Switzer")
-# - [x] Find a way to merge columns Address and Address_1, Email and Email_1, etc.
-# - [x] Check why rows don't appear in correct numerical order in outputted Excel file.
-# - [x] Automatically create table from data in Excel file (see "Xlsx Writer - Example: Pandas Excel output with a worksheet table" (https://xlsxwriter.readthedocs.io/example_pandas_table.html))
-
-# TODO: Put project on GitHub (but make sure to avoid putting personal contact data and other useless files!)
-
-# TODO:
-#
-# [x] Check how to handle PHOTO:
-# -> Temporarily save them as png in a folder
-# -> Place them in Excel file at corresponding place with correct size
-# -> Remove them from temporary folder
-#
-# Tags:
-# If list of tags is empty, this means that we are interested in all contacts no matter their tag(s)
-#
-# Logging: Insert logging at the different stages of the program to make it clearer!
-# Logging TODO: use logging message below at some places
-# logging.critical('CRITICAL message will be logged in "app.log" file.')
-# logging.error('ERROR message will be logged in "app.log" file.')
-# logging.warning('WARNING message will be logged in "app.log" file.')
-# logging.info(
-#     'INFO message is a less "severe" level than WARNING and WON\'t be logged in "app.log" file by default!')
-# logging.debug(
-#     'DEBUG message is a less "severe" level than WARNING and WON\'t be logged in "app.log" file by default!')
-#
-# TODO:
-# Refactor everything that has to be refactored!
-
 
 # Main program
 if __name__ == '__main__':
@@ -595,3 +600,10 @@ if __name__ == '__main__':
     latest_busy_contacts_vcf = get_latest_busy_contacts_vcf()
     args = parse_arguments(latest_busy_contacts_vcf)
     main(args)
+
+
+# TODO:
+# - Clean and refactor wherever possible
+# - Test with total dataset to extracct 1m02, etc.
+# - Generate GIF and nice cover picture
+# - Update GitHub
