@@ -1,12 +1,13 @@
-23-08-18_16-16-37: ᐅ Getting latest VCF backup file of BusyContacts app.
-23-08-18_16-16-37: ᐅ Parsing arguments.
-23-08-18_16-16-37: ᐅ Accessing VCF file.
-23-08-18_16-16-37: ᐅ Converting dictionary to DataFrame.
-23-08-18_16-16-37: ᐅ Reordering DataFrame's rows.
-23-08-18_16-16-37: ᐅ Reordering DataFrame's columns.
-23-08-18_16-16-38: ᐅ Saving DataFrame to pretty-printed JSON file.
-23-08-18_16-16-38: ᐅ Saving DataFrame to Excel spreadsheet.
-23-08-18_16-16-38: ᐅ Setting up Excel worksheet pivot table.
-23-08-18_16-16-38: ᐅ Handling contact pictures.
-23-08-18_16-16-41: ᐅ Contacts successfully extracted! ✅
+23-10-01_21-27-16: ᐅ Getting latest VCF backup file of BusyContacts app.
+23-10-01_21-27-16: ᐅ Parsing arguments.
+23-10-01_21-27-16: ᐅ Accessing VCF file.
+23-10-01_21-28-45: ᐅ Converting dictionary to DataFrame.
+23-10-01_21-28-45: ᐅ Reordering DataFrame's rows.
+23-10-01_21-28-45: ᐅ Reordering DataFrame's columns.
+23-10-01_21-28-45: ᐅ Saving DataFrame to pretty-printed JSON file.
+23-10-01_21-28-45: ᐅ Making sure to delete already existing Excel spreadsheet.
+23-10-01_21-28-45: ᐅ Saving DataFrame to Excel spreadsheet.
+23-10-01_21-28-45: ᐅ Setting up Excel worksheet pivot table.
+23-10-01_21-28-45: ᐅ Handling contact pictures.
+23-10-01_21-28-45: ᐅ Contacts successfully extracted! ✅
 	(See file /Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/VCFParser/src/out/contacts.xlsx)

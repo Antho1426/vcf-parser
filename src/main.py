@@ -135,7 +135,7 @@ def parse_arguments(latest_busy_contacts_vcf):
             '-vcf_file_path',
             metavar='/path/to/your/vcf/file/vcf_file.vcf',
             type=str,
-            default='/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/VCFParser/tests/ContactsTest.vcf',
+            default='/Users/anthony/MEGA/DOCUMENTS/Programmation/Python/MyPythonProjects/VCFParser/tests/ContactsTest_WithProblematicPhotoOfJaiyamSharma.vcf',
             help='VCF file path to read content from.'
         )
         parser.add_argument(
@@ -143,7 +143,7 @@ def parse_arguments(latest_busy_contacts_vcf):
             metavar='my_tag_1 my_tag_2 my_tag_3',
             nargs='+',
             type=str,
-            default=['EPFL'],  # ['1m02', '2m02', '3m02']
+            default=[],  # ['EPFL', 'Japan 2023'],  # ['1m02', '2m02', '3m02'],
             help='List of tags identifying contacts of interest. If left empty, \
                 this means that all contacts have to be extracted from VCF file \
                 independently of their tags.'
@@ -255,7 +255,11 @@ def main(args):
 
     # Printing arguments
     print(f'args.vcf_file_path:\t{args.vcf_file_path}')
-    print(f'args.tag_list:\t\t{args.tag_list}')
+    if args.tag_list:
+        print(f'args.tag_list:\t\t{args.tag_list}')
+    else:
+        print(
+            f'args.tag_list:\t\t{args.tag_list} (no contact gets filtered by list of tags)')
     print(f'args.logic_op:\t\t{args.logic_op}')
 
     # Extracting contact data between "FN" and "REV" fields
@@ -264,7 +268,11 @@ def main(args):
     contact_id = 0
 
     BEGIN_SYMBOL = 'N:'
-    END_SYMBOL = 'END:'
+    # END_SYMBOL = 'END:'
+    # (with 'END:' as end symbol, Jayiam Sharma's encoded picture gets
+    # extended with data following line:
+    # "X-BUSYMAC-NOTES:data:application/x-nsarchive;base64\,YnBsaXN0MDDUAQIDBAUGBw")
+    END_SYMBOL = 'REV:'
 
     standard_field_file = open(JSON_FILE_PATH+'/standard_fields.json')
     standard_field_dict = json.load(standard_field_file)
@@ -446,6 +454,13 @@ def main(args):
                     key_previous = key
                     value_previous = value
 
+                # Discarding "tag contacts" (i.e., avoiding tags (such as
+                # "Cyprus 2008", "movemeet" and "German-speaking Switzerland
+                # 2023") to be considered as standard contacts)
+                if 'KIND:group' in line:
+                    listening_to_data = False
+                    continue
+
                 # Unfinished lines (this seems to be only possible for Address,
                 # Note, Picture, Tags and social profile fields)
                 if (key_previous == 'ADR' or key_previous == 'NOTE' or
@@ -532,6 +547,12 @@ def main(args):
     with open(OUTPUT_FILE_PATH+JSON_FILE_NAME, 'w', encoding='utf-8') as file:
         contacts_df.T.to_json(file, force_ascii=False, indent=2)
 
+    # Making sure to delete already existing Excel spreadsheet
+    print_and_log(
+        'ᐅ Making sure to delete already existing Excel spreadsheet.')
+    if os.path.exists(OUTPUT_FILE_PATH+EXCEL_WORKBOOK_NAME):
+        os.remove(OUTPUT_FILE_PATH+EXCEL_WORKBOOK_NAME)
+
     # Creating a Pandas Excel writer using XlsxWriter as the engine
     writer = pd.ExcelWriter(
         OUTPUT_FILE_PATH+EXCEL_WORKBOOK_NAME, engine="xlsxwriter")
@@ -570,8 +591,9 @@ def main(args):
         # Creating pictures
         num_contacts = len(contacts_df[photo_value].index)
         for i, pic_b64encode in tqdm(enumerate(contacts_df[photo_value]), total=num_contacts):
-            print(
-                f'{contacts_df["First Name"][i]} {contacts_df["Last Name"][i]}')
+            if DEBUG_MODE:
+                print(
+                    f'i: {i} | {contacts_df["First Name"][i]} {contacts_df["Last Name"][i]}')
             if isinstance(pic_b64encode, str):
                 # Decoding picture
                 pic_b64decode = base64.b64decode(pic_b64encode)
