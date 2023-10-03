@@ -491,10 +491,6 @@ def main(args):
     print_and_log('ᐅ Converting dictionary to DataFrame.')
     contacts_df = pd.DataFrame.from_dict(contacts_dict, orient="index")
 
-    # Reordering DataFrame rows in chronological index order
-    print_and_log('ᐅ Reordering DataFrame\'s rows.')
-    contacts_df.sort_index(axis=0, inplace=True)
-
     # Reordering DataFrame columns
     print_and_log('ᐅ Reordering DataFrame\'s columns.')
 
@@ -541,6 +537,28 @@ def main(args):
     # Applying new column order
     ordered_column_list = ordered_column_list + last_columns_diff_no_dupl
     contacts_df = contacts_df[ordered_column_list]
+
+    # Reordering DataFrame rows in chronological index order
+    print_and_log('ᐅ Reordering DataFrame\'s rows.')
+    # 1. Creating new DataFrame by extracting all columns up to "Last Name" column
+    last_name_col_idx = ordered_column_list.index('Last Name')
+    contact_names_df = contacts_df.iloc[:, 0:last_name_col_idx+1]
+    # 2. Putting "Last Name" column first, in front of all other name columns
+    column_list = contact_names_df.columns.tolist()
+    column_list_new = [column_list[-1]] + column_list[:-1]
+    ordered_contact_names_df = contact_names_df[column_list_new]
+    # 3. Combining all columns into one single column
+    contact_names_single_col = ordered_contact_names_df[ordered_contact_names_df.columns].apply(
+        lambda x: ' '.join(x.fillna('').astype(str)),
+        axis=1
+    )
+    # 4. Sorting contacts_df based on contact_names_single_col
+    # Adding "contact_names_single_col" column to "contacts_df"
+    contacts_df['Contact Names Single Col'] = contact_names_single_col
+    # Sorting DataFrame based on the newly added "contact_names_single_col" column
+    contacts_df.sort_values('Contact Names Single Col', inplace=True)
+    # Removing column "contact_names_single_col"
+    contacts_df.drop('Contact Names Single Col', axis=1, inplace=True)
 
     # Saving transposed DataFrame to JSON file
     print_and_log('ᐅ Saving DataFrame to pretty-printed JSON file.')
